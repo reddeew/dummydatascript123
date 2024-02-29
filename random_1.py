@@ -1,0 +1,71 @@
+#import boto3
+import random
+import string
+
+# Set up S3 client
+#s3_client = boto3.client('s3')
+
+# Define parameters
+bucket_name = 'your-bucket-name'
+folder_path = 'dummy-data/'
+num_records = 1000000  # Number of records in each file
+
+# Function to generate random string
+def generate_random_string(size):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=size))
+
+# Function to generate realistic names
+def generate_realistic_name():
+    first_names = ['John', 'Jane', 'Michael', 'Emily', 'David', 'Sarah', 'Daniel', 'Jessica', 'James', 'Elizabeth']
+    last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Rodriguez', 'Martinez']
+    return random.choice(first_names), random.choice(last_names)
+
+# Function to generate dummy employees data
+def generate_employees_data(num_records):
+    data = []
+    for i in range(num_records):
+        first_name, last_name = generate_realistic_name()
+        employee_id = i + 1
+        data.append(f"{first_name},{last_name},{employee_id}")
+    return '\n'.join(data)
+
+# Function to generate dummy transactions data related to employees
+def generate_transactions_data(num_records):
+    data = []
+    for i in range(num_records):
+        transaction_id = i + 1
+        employee_id = random.randint(1, num_records)
+        amount = round(random.uniform(10.00, 1000.00), 2)
+        data.append(f"{transaction_id},{employee_id},{amount}")
+    return '\n'.join(data)
+
+# Function to generate dummy accounts data related to employees
+def generate_accounts_data(num_records):
+    data = []
+    for i in range(num_records):
+        account_id = i + 1
+        employee_id = random.randint(1, num_records)
+        balance = round(random.uniform(1000.00, 100000.00), 2)
+        data.append(f"{account_id},{employee_id},{balance}")
+    return '\n'.join(data)
+
+# Function to write data to file
+def write_to_file(file_name, data):
+    with open(file_name, 'w') as f:
+        f.write(data)
+
+# Function to upload file to S3
+def upload_to_s3(file_name, s3_key):
+    s3_client.upload_file(file_name, bucket_name, s3_key)
+
+# Generate and upload dummy data files
+for file_num, generate_data_func, header in [(1, generate_employees_data, 'First Name,Last Name,Employee ID'),
+                                             (2, generate_transactions_data, 'Transaction ID,Employee ID,Amount'),
+                                             (3, generate_accounts_data, 'Account ID,Employee ID,Balance')]:
+    file_name = f'dummy_finance_data_{file_num}.csv'
+    dummy_data = generate_data_func(num_records)
+    dummy_data_with_header = f"{header}\n{dummy_data}"
+    write_to_file(file_name, dummy_data_with_header)
+    s3_key = folder_path + file_name
+    #upload_to_s3(file_name, s3_key)
+    print(f"Uploaded {file_name} to S3 at s3://{bucket_name}/{s3_key}")
