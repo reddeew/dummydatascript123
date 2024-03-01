@@ -1,0 +1,57 @@
+SELECT *
+FROM accounts AS a
+JOIN transactions AS t ON a.EmployeeID = t.EmployeeID
+JOIN employee AS e ON a.EmployeeID = e.EmployeeID;
+
+
+SELECT *
+FROM employee AS e
+LEFT JOIN accounts AS a ON e.EmployeeID = a.EmployeeID
+LEFT JOIN transactions AS t ON e.EmployeeID = t.EmployeeID;
+
+
+SELECT *
+FROM accounts AS a
+FULL OUTER JOIN transactions AS t ON a.EmployeeID = t.EmployeeID
+FULL OUTER JOIN employee AS e ON a.EmployeeID = e.EmployeeID;
+
+
+CREATE PROCEDURE GetEmployeeInfo
+AS
+BEGIN
+    SELECT *
+    FROM employee;
+END;
+
+
+CREATE PROCEDURE GetAccountBalanceByEmployeeID
+    @EmployeeID INT
+AS
+BEGIN
+    SELECT Balance
+    FROM accounts
+    WHERE EmployeeID = @EmployeeID;
+END;
+
+
+CREATE PROCEDURE InsertTransaction
+    @TransactionID INT,
+    @EmployeeID INT,
+    @Amount DECIMAL(10,2),
+    @TransactionDate DATE,
+    @Description VARCHAR(255)
+AS
+BEGIN
+    INSERT INTO transactions (TransactionID, EmployeeID, Amount, TransactionDate, Description)
+    VALUES (@TransactionID, @EmployeeID, @Amount, @TransactionDate, @Description);
+END;
+
+CREATE PROCEDURE UpdateEmployeeDepartment
+    @EmployeeID INT,
+    @NewDepartment VARCHAR(50)
+AS
+BEGIN
+    UPDATE employee
+    SET Department = @NewDepartment
+    WHERE EmployeeID = @EmployeeID;
+END;
