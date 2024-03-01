@@ -1,0 +1,117 @@
+import boto3
+import random
+import string
+from datetime import datetime, timedelta
+import os
+
+# Set up S3 client
+s3_client = boto3.client('s3')
+
+# Define parameters
+bucket_name = 'your-bucket-name'
+folder_path = 'dummy-data/'
+
+def create_folder_if_not_exists(folder_name):
+    try:
+        s3_client.head_object(Bucket=bucket_name, Key=folder_path + folder_name + '/')
+    except:
+        s3_client.put_object(Bucket=bucket_name, Key=folder_path + folder_name + '/')
+
+# Function to generate random string
+def generate_random_string(size):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=size))
+
+# Function to generate realistic names
+def generate_realistic_name():
+    first_names = ['John', 'Jane', 'Michael', 'Emily', 'David', 'Sarah', 'Daniel', 'Jessica', 'James', 'Elizabeth']
+    last_names = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Garcia', 'Rodriguez', 'Martinez']
+    return random.choice(first_names), random.choice(last_names)
+
+# Function to generate random email address
+def generate_email(first_name, last_name):
+    domain = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'company.com']
+    return f"{first_name.lower()}.{last_name.lower()}@{random.choice(domain)}"
+
+# Function to generate random date string
+def generate_random_date(start_date, end_date):
+    return (start_date + timedelta(seconds=random.randint(0, int((end_date - start_date).total_seconds())))).strftime("%Y-%m-%d")
+
+# Function to generate dummy employees data
+def generate_employees_data(num_records):
+    data = []
+    for i in range(num_records):
+        first_name, last_name = generate_realistic_name()
+        employee_id = i + 1
+        department = random.choice(['Engineering', 'Finance', 'Marketing', 'HR', 'Operations'])
+        email = generate_email(first_name, last_name)
+        start_date = generate_random_date(datetime(2015, 1, 1), datetime.now())
+        data.append(f"{first_name},{last_name},{employee_id},{department},{email},{start_date}")
+    return '\n'.join(data)
+
+# Function to generate dummy transactions data related to employees
+def generate_transactions_data(num_records):
+    data = []
+    for i in range(num_records):
+        transaction_id = i + 1
+        employee_id = random.randint(1, num_records)
+        amount = round(random.uniform(10.00, 1000.00), 2)
+        transaction_date = generate_random_date(datetime(2020, 1, 1), datetime.now())
+        description = generate_random_string(20)
+        data.append(f"{transaction_id},{employee_id},{amount},{transaction_date},{description}")
+    return '\n'.join(data)
+
+# Function to generate dummy accounts data related to employees
+def generate_accounts_data(num_records):
+    data = []
+    for i in range(num_records):
+        account_id = i + 1
+        employee_id = random.randint(1, num_records)
+        balance = round(random.uniform(1000.00, 100000.00), 2)
+        account_type = random.choice(['Checking', 'Savings', 'Investment', 'Credit'])
+        bank_name = random.choice(['Bank A', 'Bank B', 'Bank C', 'Bank D'])
+        data.append(f"{account_id},{employee_id},{balance},{account_type},{bank_name}")
+    return '\n'.join(data)
+
+# Function to write data to file
+def write_to_file(file_name, data):
+    with open(file_name, 'a') as f:
+        f.write(data)
+
+# Function to upload file to S3
+def upload_to_s3(file_name, s3_key):
+    s3_client.upload_file(file_name, bucket_name, s3_key)
+
+# Function to generate and upload dummy data files
+def generate_and_upload_dummy_data_files(table_name, generate_data_func, header):
+    create_folder_if_not_exists(table_name)
+    current_file_size_mb = 0
+    file_num = 1
+    while current_file_size_mb < 1024:
+        file_name = f'{table_name}.csv'
+        
+        # Check if the file already exists
+        if os.path.isfile(file_name):
+            mode = 'a'  # Append mode
+        else:
+            mode = 'w'  # Write mode
+        
+        dummy_data = generate_data_func(num_records)
+        dummy_data_with_header = f"{header}\n{dummy_data}"
+        write_to_file(file_name, dummy_data_with_header)
+        
+        # Calculate current file size
+        current_file_size_mb = os.path.getsize(file_name) / (1024 * 1024)
+        
+        # Upload file to S3 if it reaches the target size
+        if current_file_size_mb >= 1024:
+            s3_key = folder_path + table_name + '/' + file_name
+            upload_to_s3(file_name, s3_key)
+            print(f"Uploaded {file_name} to S3 at s3://{bucket_name}/{s3_key}")
+            break
+        else:
+            file_num += 1
+
+# Generate and upload dummy data files for employees, transactions, and accounts
+generate_and_upload_dummy_data_files('employee', generate_employees_data, 'First Name,Last Name,Employee ID,Department,Email,Start Date')
+generate_and_upload_dummy_data_files('transaction', generate_transactions_data, 'Transaction ID,Employee ID,Amount,Transaction Date,Description')
+generate_and_upload_dummy_data_files('account', generate_accounts_data, 'Account ID,Employee ID,Balance,Account Type,Bank Name')
