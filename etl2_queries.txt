@@ -1,0 +1,196 @@
+Inner Join:
+
+Get employee details along with their associated departments:
+sql
+Copy code
+SELECT e.*, d.department_name
+FROM employees e
+INNER JOIN employee_department ed ON e.employee_id = ed.employee_id
+INNER JOIN departments d ON ed.department_id = d.department_id;
+Left Outer Join (Left Join):
+
+Get all employees and their associated accounts (if any):
+sql
+Copy code
+SELECT e.*, a.*
+FROM employees e
+LEFT JOIN employee_accounts ea ON e.employee_id = ea.employee_id
+LEFT JOIN accounts a ON ea.account_id = a.account_id;
+Right Outer Join (Right Join):
+
+Get all departments and their associated employees (if any):
+sql
+Copy code
+SELECT d.*, e.*
+FROM departments d
+RIGHT JOIN employee_department ed ON d.department_id = ed.department_id
+RIGHT JOIN employees e ON ed.employee_id = e.employee_id;
+Full Outer Join (Full Join):
+
+Get all employees and their associated transactions (if any):
+sql
+Copy code
+SELECT e.*, t.*
+FROM employees e
+FULL JOIN employee_transactions et ON e.employee_id = et.employee_id
+FULL JOIN transactions t ON et.transaction_id = t.transaction_id;
+Here are some examples of stored procedures:
+
+Get Employee Details by Employee ID:
+
+This stored procedure retrieves employee details based on the provided employee ID.
+sql
+Copy code
+CREATE PROCEDURE GetEmployeeDetails(IN emp_id INT)
+BEGIN
+    SELECT * FROM employees WHERE employee_id = emp_id;
+END;
+Get Employee Transactions by Employee ID:
+
+This stored procedure fetches all transactions associated with a given employee ID.
+sql
+Copy code
+CREATE PROCEDURE GetEmployeeTransactions(IN emp_id INT)
+BEGIN
+    SELECT t.*
+    FROM transactions t
+    INNER JOIN employee_transactions et ON t.transaction_id = et.transaction_id
+    WHERE et.employee_id = emp_id;
+END;
+Get Employee Accounts by Employee ID:
+
+This stored procedure retrieves all accounts associated with a given employee ID.
+sql
+Copy code
+CREATE PROCEDURE GetEmployeeAccounts(IN emp_id INT)
+BEGIN
+    SELECT a.*
+    FROM accounts a
+    INNER JOIN employee_accounts ea ON a.account_id = ea.account_id
+    WHERE ea.employee_id = emp_id;
+END;
+
+
+
+redshift copy 
+#########################
+
+Employees Table:
+sql
+Copy code
+-- Create external table for employees
+CREATE EXTERNAL TABLE spectrum_schema.employees_external (
+    employee_id INT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100)
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION 's3://your-bucket-name/dummy-data/employees.csv'
+TABLE PROPERTIES ('skip.header.line.count'='1');
+
+-- Copy data into internal table
+CREATE TABLE employees_internal (
+    employee_id INT,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100)
+);
+
+INSERT INTO employees_internal
+SELECT * FROM spectrum_schema.employees_external;
+Transactions Table:
+sql
+Copy code
+-- Create external table for transactions
+CREATE EXTERNAL TABLE spectrum_schema.transactions_external (
+    transaction_id INT,
+    amount DECIMAL(10, 2),
+    description VARCHAR(255)
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION 's3://your-bucket-name/dummy-data/transactions.csv'
+TABLE PROPERTIES ('skip.header.line.count'='1');
+
+-- Copy data into internal table
+CREATE TABLE transactions_internal (
+    transaction_id INT,
+    amount DECIMAL(10, 2),
+    description VARCHAR(255)
+);
+
+INSERT INTO transactions_internal
+SELECT * FROM spectrum_schema.transactions_external;
+Accounts Table:
+sql
+Copy code
+-- Create external table for accounts
+CREATE EXTERNAL TABLE spectrum_schema.accounts_external (
+    account_id INT,
+    balance DECIMAL(10, 2),
+    account_type VARCHAR(20)
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION 's3://your-bucket-name/dummy-data/accounts.csv'
+TABLE PROPERTIES ('skip.header.line.count'='1');
+
+-- Copy data into internal table
+CREATE TABLE accounts_internal (
+    account_id INT,
+    balance DECIMAL(10, 2),
+    account_type VARCHAR(20)
+);
+
+INSERT INTO accounts_internal
+SELECT * FROM spectrum_schema.accounts_external;
+Departments Table:
+sql
+Copy code
+-- Create external table for departments
+CREATE EXTERNAL TABLE spectrum_schema.departments_external (
+    department_id INT,
+    department_name VARCHAR(100)
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION 's3://your-bucket-name/dummy-data/departments.csv'
+TABLE PROPERTIES ('skip.header.line.count'='1');
+
+-- Copy data into internal table
+CREATE TABLE departments_internal (
+    department_id INT,
+    department_name VARCHAR(100)
+);
+
+INSERT INTO departments_internal
+SELECT * FROM spectrum_schema.departments_external;
+Employee_Department Table:
+sql
+Copy code
+-- Create external table for employee_department
+CREATE EXTERNAL TABLE spectrum_schema.employee_department_external (
+    employee_id INT,
+    department_id INT
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION 's3://your-bucket-name/dummy-data/employee_department.csv'
+TABLE PROPERTIES ('skip.header.line.count'='1');
+
+-- Copy data into internal table
+CREATE TABLE employee_department_internal (
+    employee_id INT,
+    department_id INT
+);
+
+INSERT INTO employee_department_internal
+SELECT * FROM spectrum_schema.employee_department_external;
+Replace 's3://your-bucket-name/dummy-data/' with the actual S3 bucket path where your data files are stored. Also, ensure that the Redshift cluster has the necessary permissions to read from the S3 bucket. Additionally, adjust the data types and column names as per your data files if necessary.
+
+
+
+
+
