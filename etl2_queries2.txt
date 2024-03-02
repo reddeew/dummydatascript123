@@ -1,0 +1,37 @@
+Join Query to Get Employee Details with Transactions and Accounts:
+sql
+Copy code
+SELECT e.employee_id, e.first_name, e.last_name, e.email,
+       t.transaction_id, t.amount, t.description,
+       a.account_id, a.balance, a.account_type
+FROM employees e
+LEFT JOIN transactions t ON e.employee_id = t.employee_id
+LEFT JOIN accounts a ON e.employee_id = a.employee_id;
+This query retrieves employee details along with their associated transactions and accounts. It uses left joins to ensure that all employees are included in the result set, even if they don't have transactions or accounts.
+
+Stored Procedure to Get Employee Transactions:
+sql
+Copy code
+CREATE PROCEDURE GetEmployeeTransactions(IN emp_id INT)
+BEGIN
+    SELECT transaction_id, amount, description
+    FROM transactions
+    WHERE employee_id = emp_id;
+END;
+This stored procedure retrieves transactions for a specific employee ID.
+
+Query to Get Total Balance for Each Account Type:
+sql
+Copy code
+SELECT account_type, SUM(balance) AS total_balance
+FROM accounts
+GROUP BY account_type;
+This query calculates the total balance for each account type by summing up the balances for all accounts of the same type.
+
+Query to Find Employees without Accounts:
+sql
+Copy code
+SELECT e.employee_id, e.first_name, e.last_name
+FROM employees e
+LEFT JOIN accounts a ON e.employee_id = a.employee_id
+WHERE a.employee_id IS NULL;
