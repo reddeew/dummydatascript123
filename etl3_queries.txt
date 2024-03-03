@@ -1,0 +1,50 @@
+DELIMITER //
+
+CREATE PROCEDURE GetEmployeeTransactions(IN emp_id INT)
+BEGIN
+    DECLARE emp_name VARCHAR(255);
+    DECLARE done BOOLEAN DEFAULT FALSE;
+    DECLARE cur_trans CURSOR FOR 
+        SELECT CONCAT(First Name, ' ', Last Name) AS EmployeeName
+        FROM Employees
+        WHERE EmployeeID = emp_id;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN cur_trans;
+
+    FETCH cur_trans INTO emp_name;
+
+    IF NOT done THEN
+        SELECT 'Transactions for Employee: ', emp_name;
+        SELECT t.*
+        FROM Transactions t
+        WHERE t.EmployeeID = emp_id;
+    ELSE
+        SELECT 'Employee not found!';
+    END IF;
+
+    CLOSE cur_trans;
+END //
+
+DELIMITER ;
+
+
+
+
+SELECT e.EmployeeID, e.FirstName, e.LastName, e.Email, t.TransactionID, t.Amount, t.Description, a.AccountID, a.Balance, a.AccountType
+FROM Employees e
+INNER JOIN Transactions t ON e.EmployeeID = t.EmployeeID
+INNER JOIN Accounts a ON e.AccountID = a.AccountID;
+
+
+SELECT e.EmployeeID, e.FirstName, e.LastName, e.Email, t.TransactionID, t.Amount, t.Description, a.AccountID, a.Balance, a.AccountType
+FROM Employees e
+LEFT JOIN Transactions t ON e.EmployeeID = t.EmployeeID
+INNER JOIN Accounts a ON e.AccountID = a.AccountID;
+
+
+
+SELECT e.EmployeeID, e.FirstName, e.LastName, e.Email, t.TransactionID, t.Amount, t.Description, a.AccountID, a.Balance, a.AccountType
+FROM Employees e
+INNER JOIN Transactions t ON e.EmployeeID = t.EmployeeID
+INNER JOIN Accounts a ON e.AccountID = a.AccountID;
