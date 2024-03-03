@@ -1,0 +1,24 @@
+Left Join Query:
+sql
+Copy code
+SELECT *
+FROM "awsdatacatalog"."redspocv6"."employees" AS e
+LEFT JOIN "awsdatacatalog"."redspocv6"."transactions" AS t ON e."Transaction ID" = t."Transaction ID"
+LEFT JOIN "awsdatacatalog"."redspocv6"."accounts" AS a ON e."Account ID" = a."Account ID";
+Right Join Query:
+sql
+Copy code
+SELECT *
+FROM "awsdatacatalog"."redspocv6"."employees" AS e
+RIGHT JOIN "awsdatacatalog"."redspocv6"."transactions" AS t ON e."Transaction ID" = t."Transaction ID"
+RIGHT JOIN "awsdatacatalog"."redspocv6"."accounts" AS a ON e."Account ID" = a."Account ID";
+Complex Stored Procedure:
+sql
+Copy code
+CREATE PROCEDURE "awsdatacatalog"."redspocv6"."GetEmployeeTransactionsAndAccounts"()
+BEGIN
+    SELECT *
+    FROM "awsdatacatalog"."redspocv6"."employees" AS e
+    LEFT JOIN "awsdatacatalog"."redspocv6"."transactions" AS t ON e."Transaction ID" = t."Transaction ID"
+    LEFT JOIN "awsdatacatalog"."redspocv6"."accounts" AS a ON e."Account ID" = a."Account ID";
+END;
