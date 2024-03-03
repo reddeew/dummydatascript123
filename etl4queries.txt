@@ -22,3 +22,45 @@ BEGIN
     LEFT JOIN "awsdatacatalog"."redspocv6"."transactions" AS t ON e."Transaction ID" = t."Transaction ID"
     LEFT JOIN "awsdatacatalog"."redspocv6"."accounts" AS a ON e."Account ID" = a."Account ID";
 END;
+
+Get Employee Transactions:
+This query retrieves transactions associated with each employee, including their details such as name, email, transaction ID, amount, and description.
+sql
+Copy code
+SELECT e."Employee ID", e."First Name", e."Last Name", e."Email", t."Transaction ID", t."Amount", t."Description"
+FROM "awsdatacatalog"."redspocv6"."employees" AS e
+INNER JOIN "awsdatacatalog"."redspocv6"."transactions" AS t ON e."Transaction ID" = t."Transaction ID";
+Get Employee Account Balances:
+This query retrieves account balances associated with each employee, including their name, email, account ID, balance, and account type.
+sql
+Copy code
+SELECT e."Employee ID", e."First Name", e."Last Name", e."Email", a."Account ID", a."Balance", a."Account Type"
+FROM "awsdatacatalog"."redspocv6"."employees" AS e
+INNER JOIN "awsdatacatalog"."redspocv6"."accounts" AS a ON e."Account ID" = a."Account ID";
+Get Total Transactions Amount by Employee:
+This query calculates the total transaction amount for each employee, showing their name, email, and the total amount of transactions they have made.
+sql
+Copy code
+SELECT e."Employee ID", e."First Name", e."Last Name", e."Email", SUM(t."Amount") AS "Total Transaction Amount"
+FROM "awsdatacatalog"."redspocv6"."employees" AS e
+INNER JOIN "awsdatacatalog"."redspocv6"."transactions" AS t ON e."Transaction ID" = t."Transaction ID"
+GROUP BY e."Employee ID", e."First Name", e."Last Name", e."Email";
+Get Average Account Balance by Department:
+This query calculates the average account balance for each department, showing the department name and the average balance of accounts associated with employees in that department.
+sql
+Copy code
+SELECT d."Department Name", AVG(a."Balance") AS "Average Account Balance"
+FROM "awsdatacatalog"."redspocv6"."employees" AS e
+INNER JOIN "awsdatacatalog"."redspocv6"."accounts" AS a ON e."Account ID" = a."Account ID"
+INNER JOIN "awsdatacatalog"."redspocv6"."department" AS d ON e."Department ID" = d."Department ID"
+GROUP BY d."Department Name";
+Get Top Spenders:
+This query identifies the top spenders based on the total amount of transactions, showing their name, email, and the total amount spent.
+sql
+Copy code
+SELECT e."Employee ID", e."First Name", e."Last Name", e."Email", SUM(t."Amount") AS "Total Amount Spent"
+FROM "awsdatacatalog"."redspocv6"."employees" AS e
+INNER JOIN "awsdatacatalog"."redspocv6"."transactions" AS t ON e."Transaction ID" = t."Transaction ID"
+GROUP BY e."Employee ID", e."First Name", e."Last Name", e."Email"
+ORDER BY "Total Amount Spent" DESC
+LIMIT 5;
