@@ -3,7 +3,7 @@ o	Materialized views and Aggregations – Create Mat view to precompute aggregat
 o	Stored Procedures
 o	Security & Access Control 
 o	Database Administration task – Back and Restore 
-o	Compatibility check with Iceberg – Manish Kumar from our team is working on Iceberg.
+o	
 o	With other AWS services 
 	Developers & Analysts - Notebooks, Studio, etc.
 	Data Scientists – Sagemaker
@@ -11,10 +11,10 @@ o	With other AWS services
 o	Performance testing
 	Query – complex queries, various joins, aggregations, and subqueries.
 	Concurrency – How many users can run? For now, we should just prove that many users can be running the queries in parallel?
-	Data Loading time – how much time it takes to load the data. You can now ask for access to data from DLC team.
+	Data Loading time – how much time it takes to load the data. 
 o	Scalability & Elasticity & Data 
 o	If time permits, Compression and Encodings Available - 
 o	If time permits, Concurrency and Workload Management
 o	If time permits, Data distribution strategy.
 o	 
-•	Quicksight – we will get one more person from Stevie. Run it like a daily progress update. Find a list of things that you want to PoC. Exactly the same way as you did for Datazone
+•	Quicksight –  Run it like a daily progress update. Find a list of things that you want to PoC. 
