@@ -53,6 +53,52 @@ BEGIN
     LOOP
         -- Store or Print the total_sales for each month
         -- You can replace PRINT with actual insert/update operations
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------
+
+Materialized View for Total Sales by Employee:
+sql
+Copy code
+CREATE MATERIALIZED VIEW mv_total_sales_by_employee AS
+SELECT s.employee_id, e.name AS employee_name, e.department, SUM(s.amount) AS total_sales
+FROM sales_raw s
+JOIN employee e ON s.employee_id = e.employee_id
+GROUP BY s.employee_id, e.name, e.department;
+Materialized View for Monthly Sales Report:
+sql
+Copy code
+CREATE MATERIALIZED VIEW mv_monthly_sales_report AS
+SELECT DATE_TRUNC('month', sale_date) AS month, SUM(amount) AS total_sales
+FROM sales_raw
+GROUP BY DATE_TRUNC('month', sale_date);
+Precompute Aggregations for Total Sales by Department:
+sql
+Copy code
+CREATE MATERIALIZED VIEW mv_total_sales_by_department AS
+SELECT e.department, SUM(s.amount) AS total_sales
+FROM sales_raw s
+JOIN employee e ON s.employee_id = e.employee_id
+GROUP BY e.department;
+Precompute Aggregations for Total Sales by Product Category:
+sql
+Copy code
+CREATE MATERIALIZED VIEW mv_total_sales_by_product_category AS
+SELECT p.category, SUM(t.amount) AS total_sales
+FROM transactions_raw t
+JOIN products p ON t.product_id = p.product_id
+GROUP BY p.category;
         PRINT 'Month: ' || month_record.month || ', Total Sales: ' || month_record.total_sales;
     END LOOP;
 END;
