@@ -1,0 +1,59 @@
+Inner Join between Sales and Employees:
+sql
+Copy code
+SELECT s.*, e.name AS employee_name, e.department
+FROM sales_raw s
+INNER JOIN employee e ON s.employee_id = e.employee_id
+Left Join between Transactions and Customers, then Inner Join with Products:
+sql
+Copy code
+SELECT t.*, c.customer_name, p.product_name
+FROM transactions_raw t
+LEFT JOIN customers c ON t.customer_id = c.customer_id
+INNER JOIN products p ON t.product_id = p.product_id
+Left Join with Aggregation:
+sql
+Copy code
+SELECT e.department, COUNT(s.employee_id) AS num_sales
+FROM sales_raw s
+LEFT JOIN employee e ON s.employee_id = e.employee_id
+GROUP BY e.department
+For stored procedures, let's create two examples:
+
+Stored Procedure to Calculate Total Sales by Employee:
+sql
+Copy code
+CREATE OR REPLACE PROCEDURE CalculateTotalSalesByEmployee()
+AS $$
+DECLARE
+    emp_record RECORD;
+BEGIN
+    FOR emp_record IN SELECT employee_id, SUM(amount) AS total_sales
+                      FROM sales_raw
+                      GROUP BY employee_id
+    LOOP
+        -- Store or Print the total_sales for each employee
+        -- You can replace PRINT with actual insert/update operations
+        PRINT 'Employee ID: ' || emp_record.employee_id || ', Total Sales: ' || emp_record.total_sales;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+Stored Procedure to Generate Monthly Sales Report:
+sql
+Copy code
+CREATE OR REPLACE PROCEDURE GenerateMonthlySalesReport(start_date DATE, end_date DATE)
+AS $$
+DECLARE
+    month_record RECORD;
+BEGIN
+    FOR month_record IN SELECT DATE_TRUNC('month', sale_date) AS month, SUM(amount) AS total_sales
+                         FROM sales_raw
+                         WHERE sale_date BETWEEN start_date AND end_date
+                         GROUP BY DATE_TRUNC('month', sale_date)
+    LOOP
+        -- Store or Print the total_sales for each month
+        -- You can replace PRINT with actual insert/update operations
+        PRINT 'Month: ' || month_record.month || ', Total Sales: ' || month_record.total_sales;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
